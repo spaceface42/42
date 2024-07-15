@@ -21,7 +21,7 @@ class PartialContentInjector {
         this.allowedCrossOriginDomains = allowedCrossOriginDomains;
     }
     
-    async injectAllPartialsOLD(selector: string = 'link[rel="html"]'): Promise<void> {
+    async injectAllPartials(selector: string = 'link[rel="html"]'): Promise<void> {
         const partials = document.querySelectorAll(selector);
         await Promise.all(Array.from(partials).map(async (partial) => {
             const url = partial.getAttribute('href');
@@ -32,7 +32,7 @@ class PartialContentInjector {
         }));
     }
     
-    async injectAllPartials(selector: string = 'link[rel="html"]'): Promise<void> {
+    async injectAllPartialsOBSOLETE(selector: string = 'link[rel="html"]'): Promise<void> {
         const partials = document.querySelectorAll(selector + ':not([data-partial-loaded])');
         await Promise.all(Array.from(partials).map(async (partial) => {
             const url = partial.getAttribute('href');
@@ -82,7 +82,7 @@ class PartialContentInjector {
         }
     }
     
-    private insertContentX(content: string, element: Element): void {
+    private insertContent(content: string, element: Element): void {
         try {
             element.insertAdjacentHTML('beforebegin', content.trim());
             element.remove();
@@ -107,7 +107,7 @@ class PartialContentInjector {
         }
     }
 
-    private insertContent(content: string, element: Element): void {
+    private insertContentDebug(content: string, element: Element): void {
         try {
             // Create a new div to hold the content
             const contentContainer = document.createElement('div');
