@@ -21,7 +21,7 @@ class PartialContentInjector {
         this.allowedCrossOriginDomains = allowedCrossOriginDomains;
     }
     
-    async injectAllPartials(selector: string = 'link[rel="html"]'): Promise<void> {
+    async injectAllPartialsOLD(selector: string = 'link[rel="html"]'): Promise<void> {
         const partials = document.querySelectorAll(selector);
         await Promise.all(Array.from(partials).map(async (partial) => {
             const url = partial.getAttribute('href');
@@ -32,6 +32,18 @@ class PartialContentInjector {
         }));
     }
     
+    async injectAllPartials(selector: string = 'link[rel="html"]'): Promise<void> {
+        const partials = document.querySelectorAll(selector + ':not([data-partial-loaded])');
+        await Promise.all(Array.from(partials).map(async (partial) => {
+            const url = partial.getAttribute('href');
+            if (!url) {
+                throw new Error(`injectAllPartials: No URL provided for element: ${partial.outerHTML}`);
+            }
+            await this.injectPartial(url, partial);
+        }));
+    }
+
+
     async injectSinglePartial(url: string, targetSelector: string): Promise<void> {
         const targetElement = document.querySelector(targetSelector);
         if (!targetElement) {
@@ -40,7 +52,7 @@ class PartialContentInjector {
         await this.injectPartial(url, targetElement);
     }
     
-    private async injectPartialX(url: string, element: Element): Promise<void> {
+    private async injectPartial(url: string, element: Element): Promise<void> {
         try {
             let content: string;
             if (this.partialContentFetcher.isSameOrigin(url)) {
@@ -60,19 +72,6 @@ class PartialContentInjector {
         }
     }
 
-    async injectAllPartials(selector: string = 'link[rel="html"]'): Promise<void> {
-        const partials = document.querySelectorAll(selector + ':not([data-partial-loaded])');
-        await Promise.all(Array.from(partials).map(async (partial) => {
-            const url = partial.getAttribute('href');
-            if (!url) {
-                throw new Error(`injectAllPartials: No URL provided for element: ${partial.outerHTML}`);
-            }
-            await this.injectPartial(url, partial);
-        }));
-    }
-
-
-    
     private isAllowedCrossOrigin(url: string): boolean {
         try {
             const urlObject = new URL(url);
