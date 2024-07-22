@@ -1,9 +1,8 @@
 /**
- * PartialContentFetcher v1.1.0
+ * PartialContentFetcher v1.2.1
  * 
  * fetch html partials
  */
-import { FetchError, HTTPError, ContentTypeError } from './customErrors.js';
 
 class PartialContentFetcher {
     static readonly VERSION = '1.2.1';
@@ -24,23 +23,20 @@ class PartialContentFetcher {
             });
             
             if (!response.ok) {
-                throw new HTTPError(`HTTP error! status: ${response.status}`, url, response.status);
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const contentType = response.headers.get('Content-Type');
             
             if (!contentType) {
-                throw new ContentTypeError('No Content-Type header received', url, null);
+                throw new Error('No Content-Type header received');
             } else if (!this.isValidContentType(contentType)) {
-                throw new ContentTypeError(`Unexpected Content-Type received: ${contentType}`, url, contentType);
+                throw new Error(`Unexpected Content-Type received: ${contentType}`);
             }
             
             return await response.text();
         } catch (error) {
-            if (error instanceof FetchError) {
-                throw error;
-            }
-            throw new FetchError(`Failed to fetch content: ${error instanceof Error ? error.message : 'Unknown error'}`, url);
+            throw new Error(`Failed to fetch content: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
     }
     
@@ -59,6 +55,5 @@ class PartialContentFetcher {
         return validTypes.some(type => contentType.includes(type));
     }
 }
-
 
 export default PartialContentFetcher;
